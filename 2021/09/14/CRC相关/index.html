@@ -20,15 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Blogoc">
-<meta property="og:url" content="http://example.com/archives/2022/07/index.html">
+  <meta name="description" content="关于CRC原理 A端   选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【1】 将 数据+CRC 以及其他部分存储或发送   B端 获取读取或接受的 数据+CRC【1】 选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【2】 将CRC【2】与CRC【1】进行比对 若相同，则数据正确；若不同，则数据有损    CRC模型参数   参数 取值 意义    NAME 根据位宽具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CRC相关">
+<meta property="og:url" content="http://example.com/2021/09/14/CRC%E7%9B%B8%E5%85%B3/index.html">
 <meta property="og:site_name" content="Blogoc">
+<meta property="og:description" content="关于CRC原理 A端   选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【1】 将 数据+CRC 以及其他部分存储或发送   B端 获取读取或接受的 数据+CRC【1】 选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【2】 将CRC【2】与CRC【1】进行比对 若相同，则数据正确；若不同，则数据有损    CRC模型参数   参数 取值 意义    NAME 根据位宽具">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png">
+<meta property="article:published_time" content="2021-09-14T14:02:55.000Z">
+<meta property="article:modified_time" content="2022-07-04T13:51:56.678Z">
 <meta property="article:author" content="CjiW">
+<meta property="article:tag" content="校验">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png">
 
-<link rel="canonical" href="http://example.com/archives/2022/07/">
+<link rel="canonical" href="http://example.com/2021/09/14/CRC%E7%9B%B8%E5%85%B3/">
 
 
 <script id="page-configurations">
@@ -36,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | Blogoc</title>
+  <title>CRC相关 | Blogoc</title>
   
 
 
@@ -152,50 +159,145 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 7 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/14/CRC%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="CjiW">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blogoc">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CRC相关
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-14 22:02:55" itemprop="dateCreated datePublished" datetime="2021-09-14T22:02:55+08:00">2021-09-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2022</span>
+        <h2 id="关于CRC原理"><a href="#关于CRC原理" class="headerlink" title="关于CRC原理"></a>关于CRC原理</h2><ol>
+<li>A端  <ol>
+<li>选择指定的CRC参数模型</li>
+<li>根据模型参数及实际数据计算CRC值【1】</li>
+<li>将 数据+CRC 以及其他部分存储或发送</li>
+</ol>
+</li>
+<li>B端<ol>
+<li>获取读取或接受的 数据+CRC【1】</li>
+<li>选择指定的CRC参数模型</li>
+<li>根据模型参数及实际数据计算CRC值【2】</li>
+<li>将CRC【2】与CRC【1】进行比对</li>
+<li>若相同，则数据正确；若不同，则数据有损</li>
+</ol>
+</li>
+</ol>
+<h2 id="CRC模型参数"><a href="#CRC模型参数" class="headerlink" title="CRC模型参数"></a>CRC模型参数</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>取值</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NAME</td>
+<td>根据位宽具体取名</td>
+<td>参数模型名称</td>
+</tr>
+<tr>
+<td>WIDTH</td>
+<td>4、5、6、7、8、16、32等</td>
+<td>CRC数据位宽</td>
+</tr>
+<tr>
+<td>POLY</td>
+<td>据具体模型而定</td>
+<td>省略最高次系数后多项式所有系数的十六进制表示</td>
+</tr>
+<tr>
+<td>INIT</td>
+<td>通常为全0或F</td>
+<td>CRC初始值</td>
+</tr>
+<tr>
+<td>REFIN</td>
+<td>true或false</td>
+<td>计算前是否翻转</td>
+</tr>
+<tr>
+<td>REFOUT</td>
+<td>true或false</td>
+<td>计算后CRC是否翻转</td>
+</tr>
+<tr>
+<td>XOROUT</td>
+<td>通常为全0或F</td>
+<td>与计算后CRC进行异或运算</td>
+</tr>
+</tbody></table>
+<p>常见21个模型<br><img src="/./img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png" alt="21个标准参数模型">  </p>
+<p>具体实例：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0.原始数据 = 0x34 = 0011 0100，多项式 = 0x31 = 1 0011 0001</span><br><span class="line">1.INIT = 00，原始数据高8位和初始值进行异或运算保持不变。</span><br><span class="line">2.REFIN为TRUE，需要先对原始数据进行翻转：0011 0100 &gt; 0010 1100</span><br><span class="line">3.原始数据左移8位，即后面补8个0：0010 1100 0000 0000</span><br><span class="line">4.把处理之后的数据和多项式进行模2除法，求得余数：</span><br><span class="line">原始数据：0010 1100 0000 0000 = 10 1100 0000 0000</span><br><span class="line">多项式：1 0011 0001</span><br><span class="line">模2除法取余数低8位：1111 1011</span><br><span class="line">5.与XOROUT进行异或，1111 1011 xor 0000 0000 = 1111 1011 </span><br><span class="line">6.因为REFOUT为TRUE，对结果进行翻转得到最终的CRC-8值：1101 1111 = 0xDF</span><br><span class="line">7.数据+CRC：0011 0100 1101 1111 = 34DF，相当于原始数据左移8位+余数。</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用zlib提供的crc32计算"><a href="#利用zlib提供的crc32计算" class="headerlink" title="利用zlib提供的crc32计算"></a>利用zlib提供的crc32计算</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> zlib <span class="keyword">import</span> crc32</span><br><span class="line">crc = crc32(<span class="built_in">bytes</span>, value)</span><br></pre></td></tr></table></figure>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-07-04T21:45:45+08:00"
-              content="2022-07-04">
-          07-04
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A0%A1%E9%AA%8C/" rel="tag"># 校验</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/07/04/CRC%E7%9B%B8%E5%85%B3/" itemprop="url">
-            <span itemprop="name">CRC相关</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/14/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E4%B9%8BPNG/" rel="prev" title="文件编码之PNG">
+      <i class="fa fa-chevron-left"></i> 文件编码之PNG
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/12/alpha-beta%E5%89%AA%E6%9E%9D/" rel="next" title="alpha-beta剪枝">
+      alpha-beta剪枝 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
   </article>
-
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -248,6 +350,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8ECRC%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">关于CRC原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CRC%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">CRC模型参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8zlib%E6%8F%90%E4%BE%9B%E7%9A%84crc32%E8%AE%A1%E7%AE%97"><span class="nav-number">3.</span> <span class="nav-text">利用zlib提供的crc32计算</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
