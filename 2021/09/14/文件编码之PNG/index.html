@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="什么是PNGPNG的全称是便携式网络图形（Portable Network Graphics），是目前最流行的网络传输和展示的图片格式，设计它的初衷是为了代替GIF，它的特点也正是相对于GIF的优势：  免费：很久之前GIF专利是收费的，这也是PNG发展起来的原因。 无损压缩：PNG采用了基于LZ77的压缩算法，使得它压缩率更高，且不损失数据。 体积小：PNG利用特殊的编码方式标记重复出现的数据，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件编码之PNG">
+<meta property="og:url" content="http://example.com/2021/09/14/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E4%B9%8BPNG/index.html">
+<meta property="og:site_name" content="Blogoc">
+<meta property="og:description" content="什么是PNGPNG的全称是便携式网络图形（Portable Network Graphics），是目前最流行的网络传输和展示的图片格式，设计它的初衷是为了代替GIF，它的特点也正是相对于GIF的优势：  免费：很久之前GIF专利是收费的，这也是PNG发展起来的原因。 无损压缩：PNG采用了基于LZ77的压缩算法，使得它压缩率更高，且不损失数据。 体积小：PNG利用特殊的编码方式标记重复出现的数据，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/20190819142910.gif">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/20190819143548.png">
+<meta property="article:published_time" content="2021-09-14T14:00:54.000Z">
+<meta property="article:modified_time" content="2022-07-04T12:08:12.828Z">
+<meta property="article:author" content="CjiW">
+<meta property="article:tag" content="文件编码">
+<meta property="article:tag" content="PNG">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CjiW/images/main/20190819142910.gif">
+
+<link rel="canonical" href="http://example.com/2021/09/14/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E4%B9%8BPNG/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>文件编码之PNG | Blogoc</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Blogoc</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/CjiW" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/14/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E4%B9%8BPNG/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="CjiW">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blogoc">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          文件编码之PNG
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-14 22:00:54" itemprop="dateCreated datePublished" datetime="2021-09-14T22:00:54+08:00">2021-09-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="什么是PNG"><a href="#什么是PNG" class="headerlink" title="什么是PNG"></a>什么是PNG</h2><p>PNG的全称是便携式网络图形（<strong>P</strong>ortable <strong>N</strong>etwork <strong>G</strong>raphics），是目前最流行的网络传输和展示的图片格式，设计它的初衷是为了代替GIF，它的特点也正是相对于GIF的优势：</p>
+<ul>
+<li>免费：很久之前GIF专利是收费的，这也是PNG发展起来的原因。</li>
+<li>无损压缩：PNG采用了基于LZ77的压缩算法，使得它压缩率更高，且不损失数据。</li>
+<li>体积小：PNG利用特殊的编码方式标记重复出现的数据，使体积更小。可以联想一下计数排序。</li>
+<li>可变透明度：PNG独有的透明通道，支持对原图像添加256个透明层次，这个特性为web和移动应用的图标设计提供了极大的便利。</li>
+</ul>
+<h2 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h2><span id="more"></span>
+<h3 id="透明度"><a href="#透明度" class="headerlink" title="透明度"></a>透明度</h3><p>透明度的实现主要有三种方式：</p>
+<ul>
+<li>不透明：最简单直接，整张图片每个像素都不透明</li>
+<li>Alpha 透明：可以指定像素点的透明度，例如 50% 透明</li>
+</ul>
+<h3 id="色彩"><a href="#色彩" class="headerlink" title="色彩"></a>色彩</h3><p><strong>图像色深度</strong>指的是每个像素所使用的位数，用于确定彩色图片每个像素可能有的颜色数，或者灰度图像每个像素可能有的灰度级数。<strong>注意色深度和位深度是两个概念</strong>。若色彩深度为 n，则每个像素所用的位数为 n，每个像素就有2n 种颜色选择，例如：8 位图片指的是每个像素有 256 种可用的颜色。另外，所以谈到色深或者位深的时候，要尤其注意单位，是<code>位深</code>还是<code>位深/通道</code>，具体的区别可以参考下面的 PNG 类型。</p>
+<!-- more -->
+<p>色彩的实现由三种方式：</p>
+<ul>
+<li>灰度（greyscale）：描述从白到黑的程度</li>
+<li>真色彩（true color）：每个像素保存自己原始的、真实的 RGB 颜色值</li>
+<li>索引色（indexed color）：为图片创建一张颜色表，其中保存了所有用到的颜色和对应的颜色值，并为它们编号，可以理解为颜色的宏定义。这样做可以减小图片的文件大小，但缺点是颜色种类的数量受到颜色表的限制。</li>
+</ul>
+<h3 id="PNG类型"><a href="#PNG类型" class="headerlink" title="PNG类型"></a>PNG类型</h3><p>我们一般谈论的PNG类型：</p>
+<ul>
+<li><code>PNG 8</code>：8 代表 8 位，每个像素支持存储 256种颜色。支持索引透明和 Alpha 透明。</li>
+<li><code>PNG 24</code>：24 代表 24 位，即 8位&#x2F;通道，RGB 每个通道都可以表示 256 种颜色，因此总共可以表示的颜色为256 的三次方，即 16777216 种颜色。<code>PNG 24</code>能表示的颜色更多，也意味着文件会更大。**<code>PNG 24</code>是不透明的**。</li>
+<li><code>PNG 32</code>：32 代表<code>PNG 24</code>再加上 8 位的透明通道，也就是说<code>PNG 32</code>能表示的颜色和<code>PNG 24</code>一样多，并且还支持 256 种透明颜色。</li>
+</ul>
+<p>但是根据上面介绍的透明度和色彩模式，PNG 还支持很多种图片：调色板图片（包含 24 位 RGB 或 32 位 RGBA 的索引）、灰度图片（有或无 Alpha 通道）和真色彩图片（RBG 或 RBGA）。</p>
+<h3 id="隔行扫描"><a href="#隔行扫描" class="headerlink" title="隔行扫描"></a>隔行扫描</h3><p>隔行扫描（Interlacing），也称交错扫描（interleaving），是一种位图编码的方式，编码时不严格按照相邻行进行。当连接速度比较慢时，采用隔行扫描的图片可以渐进地进行显示，即先显示较为模糊的版本，然后逐渐变清晰。如图：</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/20190819142910.gif" alt="img"></p>
+<p>我们常用的 GIF、PNG、JPEG 都采用了隔行扫描的方式，其中 PNG 采取的是二维、七通道的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Adam7_algorithm">Adam7</a>，二维表示扫描支持竖直和水平方向，7代表一张图片会被拆分为7个子图片。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/20190819143548.png" alt="img"></p>
+<p>和 GIF 采取的一维、四通道算法相比，PNG 在网速相同的情况下，尤其是网速较慢时，能够更快地显示出图片的基本外貌。</p>
+<h3 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h3><p>过滤（filter）是将图片信息变得容易压缩的过程，整张图片只会使用一种过滤方法，而过滤类型会被插到每个扫描行的前面，以方便压缩。目前 PNG 图片指定的过滤方式只有一种（method 0），所以实际使用时，只需要指定过滤类型。过滤类型指的是像素基于相邻像素的变化规律，通过这个变化规律即可推断出某像素的预测值，为了便于描述，规定了相邻像素的方位：左（A）、上（B）、左上（C）。对 method 0 来说，，共有 5 种：</p>
+<table>
+<thead>
+<tr>
+<th>类型值</th>
+<th>名称</th>
+<th>预测值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>None</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Sub</td>
+<td>A</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Up</td>
+<td>B</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Average</td>
+<td>A和B的平均值，向下取整</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Paeth</td>
+<td>A，B，C 中最接近 p &#x3D; A + B - C 的一个</td>
+</tr>
+</tbody></table>
+<p>选择合理的过滤类型可以大大提高压缩效率，但如果采用了隔行扫描，每个阶段的子图片都会被分别过滤，即支持了渐进式传输，当然压缩效率也会下降。</p>
+<p>取得预测值后，令该像素的该R&#x2F;G&#x2F;B值减去预测值，从而得到一个尽可能小的数，便于后续压缩。</p>
+<h2 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h2><p>PNG 文件由一个文件署名（file signature，也叫文件头）和多个数据块（chunks）组成，其中数据块也分为关键数据块（critical）和辅助数据块（ancillary）。关键数据块共有 4 个，每个 PNG 文件必须包含 3 个或以上的关键数据块，而辅助数据块是可选的。</p>
+<h3 id="文件署名"><a href="#文件署名" class="headerlink" title="文件署名"></a>文件署名</h3><p>文件署名由 8 个字节组成，是用来识别文件格式的，它的值为：<code>89 50 4E 47 0D 0A 1A 0A</code>，只要一个文件的署名为该值，就认为它是 PNG 格式的，这些值都有特殊的含义：</p>
+<table>
+<thead>
+<tr>
+<th>十六进制值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>89</code></td>
+<td>该值可以检测当前环境是否支持八位编码，并且大于ASCII最大值，可以避免被识别为文本文件</td>
+</tr>
+<tr>
+<td><code>50 4E 47</code></td>
+<td>在 ASCII 中对应 PNG 三个字母，方便被文本编辑器识别</td>
+</tr>
+<tr>
+<td><code>0D 0A</code></td>
+<td>CRLF 换行符；<code>0D</code>代表 ASCII 13，即<code>\r</code>，CR；<code>0A</code>代表ASCII 10，即<code>\n</code>，LF</td>
+</tr>
+<tr>
+<td><code>1A</code></td>
+<td>在 DOS 系统下标志文件类型的结束</td>
+</tr>
+<tr>
+<td><code>0A</code></td>
+<td>LF 换行符</td>
+</tr>
+</tbody></table>
+<h3 id="数据块"><a href="#数据块" class="headerlink" title="数据块"></a>数据块</h3><p>文件署名之后，紧接着就是一系列的数据块，每个数据块都包含图片的描述信息，数据块由四个部分组成：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>长度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Length</td>
+<td>4 bytes</td>
+<td>指定 <strong>Chunk Data</strong> 的长度</td>
+</tr>
+<tr>
+<td>Chunk Type</td>
+<td>4 bytes</td>
+<td>指定数据块类型</td>
+</tr>
+<tr>
+<td>Chunk Data</td>
+<td>可变</td>
+<td>按照Chunk Type存放指定数据</td>
+</tr>
+<tr>
+<td>CRC</td>
+<td>4 bytes</td>
+<td>检查是否有错误的循环冗余代码</td>
+</tr>
+</tbody></table>
+<p>这里要注意 Length 保存的是该数据块中 Chunk Data 的长度，也就是说，一个数据块的长度应该为 Length 的值加上12 bytes。</p>
+<p>Chunk Type 由4个字符组成，：第一个字符是否大写（critical），决定了该数据块是否是关键（critical）数据块；第二个字符大写表示公开，小写表示私有；第三个字符规定必须大写；第四个字符大写则表示只能在关键数据块不变时被复制，小写则表示任何情况下能复制。</p>
+<p>图片处理的相关软件或者解码器必须支持关键数据块，否则就不能正确地读取 PNG 文件，接下来介绍四个关键数据块和其他辅助数据块：</p>
+<h4 id="IHDR"><a href="#IHDR" class="headerlink" title="IHDR"></a>IHDR</h4><p>这个数据块被称为文件头数据块，必须作为第一个数据块，并用13个字节按照顺序来表示图像数据的基本信息：</p>
+<table>
+<thead>
+<tr>
+<th>域</th>
+<th>长度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Width</td>
+<td>4 bytes</td>
+<td>图片宽度，以像素为单位</td>
+</tr>
+<tr>
+<td>Height</td>
+<td>4 bytes</td>
+<td>图片高度，以像素为单位</td>
+</tr>
+<tr>
+<td>Bit Depth</td>
+<td>1 byte</td>
+<td>图像深度</td>
+</tr>
+<tr>
+<td>Color Type</td>
+<td>1 byte</td>
+<td>颜色类型</td>
+</tr>
+<tr>
+<td>Compression Method</td>
+<td>1 byte</td>
+<td>压缩算法</td>
+</tr>
+<tr>
+<td>Filter Method</td>
+<td>1 byte</td>
+<td>滤波方法</td>
+</tr>
+<tr>
+<td>Interlace Method</td>
+<td>1 byte</td>
+<td>扫描方法</td>
+</tr>
+</tbody></table>
+<p>根据颜色类型和是否有 Alpha 通道，可以有多个 Color Type：</p>
+<table>
+<thead>
+<tr>
+<th>Color Type</th>
+<th>可能的Bit Depth</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0（000）</td>
+<td>1，2，4，8，16</td>
+<td>灰度</td>
+</tr>
+<tr>
+<td>2（010）</td>
+<td>8，16</td>
+<td>RGB</td>
+</tr>
+<tr>
+<td>3（011）</td>
+<td>1，2，4，8</td>
+<td>索引色</td>
+</tr>
+<tr>
+<td>4（100）</td>
+<td>8，16</td>
+<td>有 Alpha 通道的灰度</td>
+</tr>
+<tr>
+<td>6（110）</td>
+<td>8，16</td>
+<td>RGBA</td>
+</tr>
+</tbody></table>
+<p>虽然这个数据块给 Color Type 预留了8位空间，但目前只有低三位被使用，并且只有上述五种类型是被允许的。实际上每一位的数据是有自己的含义的，1 表示支持该属性，0 表示不支持，从最低位开始：</p>
+<ul>
+<li>第一位：是否有调色板</li>
+<li>第二位：是否有三通道</li>
+<li>第三位：是否有 Alpha 通道</li>
+</ul>
+<h4 id="PLTE"><a href="#PLTE" class="headerlink" title="PLTE"></a>PLTE</h4><p>调色板（palette）数据块，包含了索引色图像（indexed color image）的相关数据，如果存在，要放在图像数据块（IDAT）之前。调色板实际上是一个彩色索引表，表的项目数范围是 1~256，每个项有 3 个字节分别用来储存RGB 三个值，所以调色板数据块最大字节数为 768。而调色板数据块只能有一个，所以调色板严重限制了图片的颜色种类。</p>
+<p>PLTE的存在需要根据上面的 Color Type 来决定：</p>
+<ul>
+<li>索引色（Type 3）必须有该数据块</li>
+<li>真色彩（Type 2，6）图片也可以有该数据块的相关内容，目的是便于非真色彩显示程序量化图像数据</li>
+<li>灰度（Type 0，4）图片不允许出现该数据块</li>
+</ul>
+<h4 id="IDAT"><a href="#IDAT" class="headerlink" title="IDAT"></a>IDAT</h4><p>存储实际的图片数据，一个图片数据流可能包含多个连续顺序的 IDAT 数据块。创建 IDAT 数据块的步骤：</p>
+<ol>
+<li>将扫描获得的图片信息及其大小储存，具体的图片信息和大小规则在 IHDR 中保存</li>
+<li>采取 IHDR 指定的过滤方法，对图像数据进行过滤。目前只有定义了method 0</li>
+<li>采取 IHDR 指定的压缩方法，对过滤的数据进行压缩</li>
+</ol>
+<p>可以看到 IHDR 非常重要，存储了很多关键信息，包括输出的数据和压缩算法。如果想要读取图片信息，将上面三个步骤逆序执行即可。</p>
+<p>IDAT 数据块不是必要的，也可以同时存在多个，但是它们必须是连续排列的。</p>
+<h4 id="IEND"><a href="#IEND" class="headerlink" title="IEND"></a>IEND</h4><p>表示 PNG 文件结束，必须放在最后面，且 Chunk Data 为空。</p>
+<h4 id="辅助数据块"><a href="#辅助数据块" class="headerlink" title="辅助数据块"></a>辅助数据块</h4><p>接下来用表格形式简单介绍一下各个辅助数据块：</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bKGD</td>
+<td>指定默认的背景颜色</td>
+</tr>
+<tr>
+<td>cHRM</td>
+<td>校准色度</td>
+</tr>
+<tr>
+<td>dSIG</td>
+<td>数字签名</td>
+</tr>
+<tr>
+<td>eXIf</td>
+<td><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Exif">Exif</a> metadata 信息</td>
+</tr>
+<tr>
+<td>gAMA</td>
+<td>指定亮度的伽马校准值</td>
+</tr>
+<tr>
+<td>hIST</td>
+<td>色彩直方图，估算颜色的使用频率</td>
+</tr>
+<tr>
+<td>iCCP</td>
+<td><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ICC_color_profile">ICC color profile</a></td>
+</tr>
+<tr>
+<td>iTXt</td>
+<td>以键值对方式存储可能的压缩文本和翻译信息</td>
+</tr>
+<tr>
+<td>pHYs</td>
+<td>指定像素大小或图片比例</td>
+</tr>
+<tr>
+<td>sBIT</td>
+<td>除了指定位深度（8，16 等等）外，保存原始数据以便恢复</td>
+</tr>
+<tr>
+<td>sPLT</td>
+<td>提出建议使用的调色板，可能有多个</td>
+</tr>
+<tr>
+<td>sRGB</td>
+<td>指明是否使用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/SRGB_color_space">sRGB color space</a></td>
+</tr>
+<tr>
+<td>sTER</td>
+<td>储存立体视图（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Stereoscopic">stereoscopic</a>）的相关信息，</td>
+</tr>
+<tr>
+<td>tEXt</td>
+<td>保存作者等键值对的文本信息</td>
+</tr>
+<tr>
+<td>tIME</td>
+<td>上次修改时间</td>
+</tr>
+<tr>
+<td>tRNS</td>
+<td>保存透明信息，分为不透明、全透明、Alpha</td>
+</tr>
+<tr>
+<td>zTXt</td>
+<td>保存压缩后的文本信息以及对应的压缩方式标识</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81/" rel="tag"># 文件编码</a>
+              <a href="/tags/PNG/" rel="tag"># PNG</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/07/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/" rel="prev" title="深度优先搜索">
+      <i class="fa fa-chevron-left"></i> 深度优先搜索
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/12/alpha-beta%E5%89%AA%E6%9E%9D/" rel="next" title="alpha-beta剪枝">
+      alpha-beta剪枝 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFPNG"><span class="nav-number">1.</span> <span class="nav-text">什么是PNG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%8F%E6%98%8E%E5%BA%A6"><span class="nav-number">2.1.</span> <span class="nav-text">透明度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%89%B2%E5%BD%A9"><span class="nav-number">2.2.</span> <span class="nav-text">色彩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PNG%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">PNG类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%94%E8%A1%8C%E6%89%AB%E6%8F%8F"><span class="nav-number">2.4.</span> <span class="nav-text">隔行扫描</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4"><span class="nav-number">2.5.</span> <span class="nav-text">过滤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">文件结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BD%B2%E5%90%8D"><span class="nav-number">3.1.</span> <span class="nav-text">文件署名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%9D%97"><span class="nav-number">3.2.</span> <span class="nav-text">数据块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IHDR"><span class="nav-number">3.2.1.</span> <span class="nav-text">IHDR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PLTE"><span class="nav-number">3.2.2.</span> <span class="nav-text">PLTE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IDAT"><span class="nav-number">3.2.3.</span> <span class="nav-text">IDAT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IEND"><span class="nav-number">3.2.4.</span> <span class="nav-text">IEND</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E6%95%B0%E6%8D%AE%E5%9D%97"><span class="nav-number">3.2.5.</span> <span class="nav-text">辅助数据块</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">CjiW</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/CjiW" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;CjiW" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:caojingwei213@gmail.com" title="E-Mail → mailto:caojingwei213@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CjiW</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

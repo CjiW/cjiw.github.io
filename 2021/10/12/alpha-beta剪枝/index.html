@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="极小化极大算法(Minimax)极小化极大算法，是一种找出失败的最大可能性中的最小值的算法。 在局面确定的双人对弈里，常进行对抗搜索，构建一棵每个节点都为一个确定状态的搜索树。奇数层为己方先手，偶数层为对方先手。搜索树上每个叶子节点都会被赋予一个估值，估值越大代表我方赢面越大。我方追求更大的赢面，而对方会设法降低我方的赢面，体现在搜索树上就是，奇数层节点（我方节点）总是会选择赢面最大的子节点状态，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="alpha-beta剪枝">
+<meta property="og:url" content="http://example.com/2021/10/12/alpha-beta%E5%89%AA%E6%9E%9D/index.html">
+<meta property="og:site_name" content="Blogoc">
+<meta property="og:description" content="极小化极大算法(Minimax)极小化极大算法，是一种找出失败的最大可能性中的最小值的算法。 在局面确定的双人对弈里，常进行对抗搜索，构建一棵每个节点都为一个确定状态的搜索树。奇数层为己方先手，偶数层为对方先手。搜索树上每个叶子节点都会被赋予一个估值，估值越大代表我方赢面越大。我方追求更大的赢面，而对方会设法降低我方的赢面，体现在搜索树上就是，奇数层节点（我方节点）总是会选择赢面最大的子节点状态，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-6.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-7.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-8.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-9.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-10.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-11.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-12.png">
+<meta property="article:published_time" content="2021-10-12T04:20:36.000Z">
+<meta property="article:modified_time" content="2022-07-04T12:14:52.468Z">
+<meta property="article:author" content="CjiW">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="决策">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CjiW/images/main/minimax-1.png">
+
+<link rel="canonical" href="http://example.com/2021/10/12/alpha-beta%E5%89%AA%E6%9E%9D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>alpha-beta剪枝 | Blogoc</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Blogoc</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/CjiW" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/12/alpha-beta%E5%89%AA%E6%9E%9D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="CjiW">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blogoc">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          alpha-beta剪枝
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-12 12:20:36" itemprop="dateCreated datePublished" datetime="2021-10-12T12:20:36+08:00">2021-10-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="极小化极大算法-Minimax"><a href="#极小化极大算法-Minimax" class="headerlink" title="极小化极大算法(Minimax)"></a>极小化极大算法(<em>Minimax</em>)</h2><p><em><strong>极小化极大算法</strong></em>，是一种找出失败的最大可能性中的最小值的算法。</p>
+<p>在局面确定的双人对弈里，常进行对抗搜索，构建一棵每个节点都为一个确定状态的搜索树。奇数层为己方先手，偶数层为对方先手。搜索树上每个叶子节点都会被赋予一个估值，估值越大代表我方赢面越大。我方追求更大的赢面，而对方会设法降低我方的赢面，体现在搜索树上就是，奇数层节点（我方节点）总是会选择赢面最大的子节点状态，而偶数层（对方节点）总是会选择我方赢面最小的的子节点状态。</p>
+<span id="more"></span>
+<p>整个过程，从上到下遍历搜索树，回溯时利用子树信息更新答案，最后得到根节点的值，意义就是我方在双方都采取最优策略下能获得的最大分数。</p>
+<p>来看一个例子。</p>
+<p>称我方为 MAX，对方为 MIN，图示如下：</p>
+<!-- more -->
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-1.png" alt="img"></p>
+<p>例如，对于如下的局势，假设从左往右搜索，根节点的数值为我方赢面：</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-2.png" alt="img"></p>
+<p>我方应选择中间的路线。因为，如果选择左边的路线，最差的赢面是 3；如果选择中间的路线，最差的赢面是 15；如果选择右边的路线，最差的赢面是 1。虽然选择右边的路线可能有 22 的赢面，但对方也可能使我方只有 1 的赢面，假设对方会选择使得我方赢面最小的方向走，那么经过权衡，显然选择中间的路线更为稳妥。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-3.png" alt="img"></p>
+<p>实际上，在看右边的路线时，当发现赢面可能为 1 就不必再去看赢面为 12、20、22 的分支了，因为已经可以确定右边的路线不是最好的。</p>
+<p>朴素的 Minimax 算法常常需要构建一棵庞大的搜索树，时间和空间复杂度都将不能承受。而剪枝就是利用搜索树每个节点取值的上下界来对 Minimax 进行剪枝优化的一种方法。</p>
+<p>需要注意的是，对于不同的问题，搜索树每个节点上的值有着不同的含义，它可以是估值、分数、赢的概率等等，为方便起见，我们下面统一用分数来称呼。</p>
+<h2 id="alpha-beta-剪枝"><a href="#alpha-beta-剪枝" class="headerlink" title="alpha-beta 剪枝"></a>alpha-beta 剪枝</h2><p>对于如下的局势，假设从左往右搜索：<img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-4.png" alt="img"></p>
+<p>若已知某节点的所有子节点的分数，则可以算出该节点的分数：对于 MAX 节点，取最大分数；对于 MIN 节点，取最小分数。</p>
+<p>若已知某节点的部分子节点的分数，虽然不能算出该节点的分数，但可以算出该节点的分数的取值范围。同时，利用该节点的分数的取值范围，在搜素其子节点时，如果已经确定没有更好的走法，就不必再搜索剩余的子节点了。</p>
+<p>记 $v$ 为节点的分数，且 $α≤v≤β$ 即 $α$ 为最大下界，$β$ 为最小上界。当 $α≥β$ 时，该节点剩余的分支就不必继续搜索了（也就是可以进行剪枝了）。注意，当 $α&#x3D;β$ 时，也可以剪枝，这是因为不会有更好的结果了，但可能有更差的结果。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-5.png" alt="img"></p>
+<p>初始化时，令 $α&#x3D;−∞, β&#x3D;+∞$，也就是$−∞≤v≤+∞$ 。到节点 A 时，由于左子节点的分数为 3，而节点 A 是 MIN 节点，试图找分数小的走法，于是将β值修改为 3，这是因为 3 小于当前的 $β$ 值（$β&#x3D;+∞$）。然后节点 A 的右子节点的分数为 17，此时不修改节点 A 的$β$ 值，这是因为 17 大于当前的 β 值（$β&#x3D;3$）。之后，节点 A 的所有子节点搜索完毕，即可计算出节点 A 的分数为 3。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-6.png" alt="img"></p>
+<p>节点 A 是节点 B 的子节点，计算出节点 A 的分数后，可以更新节点 B 的分数范围。由于节点 B 是 MAX 节点，试图找分数大的走法，于是将 $α$ 值修改为 3，这是因为 3 大于当前的 $α$ 值（$α&#x3D;−∞$）。之后搜索节点 B 的右子节点 C，并将节点 B 的 $α$ 和 $β$ 值传递给节点 C。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-7.png" alt="img"></p>
+<p>对于节点 C，由于左子节点的分数为 2，而节点 C 是 MIN 节点，于是将 $β$ 值修改为 2。此时 ，故节点 C 的剩余子节点就不必搜索了，因为可以确定，通过节点 C 并没有更好的走法。然后，节点 C 是 MIN 节点，将节点 C 的分数设为 $β$ ，也就是 2。由于节点 B 的所有子节点搜索完毕，即可计算出节点 B 的分数为 3。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-8.png" alt="img"></p>
+<p>计算出节点 B 的分数后，节点 B 是节点 D 的一个子节点，故可以更新节点 D 的分数范围。由于节点 D 是 MIN 节点，于是将 $β$ 值修改为 3。然后节点 D 将 $α$ 和 $β$ 值传递给节点 E，节点 E 又传递给节点 F。对于节点 F，它只有一个分数为 15 的子节点，由于 15 大于当前的 $β$ 值，而节点 F 为 MIN 节点，所以不更新其 $β$ 值，然后可以计算出节点 F 的分数为 15。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-9.png" alt="img"></p>
+<p>计算出节点 F 的分数后，节点 F 是节点 E 的一个子节点，故可以更新节点 E 的分数范围。节点 E 是 MAX 节点，更新 $α$，此时 $α≥β$，故可以剪去节点 E 的余下分支。然后，节点 E 是 MAX 节点，将节点 E 的分数设为 $α$，也就是 3。此时，节点 D 的所有子节点搜索完毕，即可计算出节点 D 的分数为 3。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-10.png" alt="img"></p>
+<p>计算出节点 D 的分数后，节点 D 是节点 H 的一个子节点，故可以更新节点 H 的分数范围。节点 H 是 MAX 节点，更新$α$。然后，按搜索顺序，将节点 H 的 $α$ 和 $β$ 值依次传递给节点 I、J、K。对于节点 K，其左子节点的分数为 2，而节点 K 是 MIN 节点，更新 $β$ ，此时 $α≥β$，故可以剪去节点 K 的余下分支。然后，将节点 K 的分数设为 2。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-11.png" alt="img"></p>
+<p>计算出节点 K 的分数后，节点 K 是节点 J 的一个子节点，故可以更新节点 J 的分数范围。节点 J 是 MAX 节点，更新 $α$，但是，由于节点 K 的分数小于 $α$ ，所以节点 J 的 $α$ 值维持 3 保持不变。然后，将节点 J 的 $α$ 和 $β$ 值传递给节点 L。由于节点 L 是 MIN 节点，更新 $β&#x3D;3$，此时 ，故可以剪去 $α≥β$ 节点 L 的余下分支，由于节点 L 没有余下分支，所以此处并没有实际剪枝。然后，将节点 L 的分数设为 3。</p>
+<p><img src="https://raw.githubusercontent.com/CjiW/images/main/minimax-12.png" alt="img"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E5%86%B3%E7%AD%96/" rel="tag"># 决策</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/14/%E6%96%87%E4%BB%B6%E7%BC%96%E7%A0%81%E4%B9%8BPNG/" rel="prev" title="文件编码之PNG">
+      <i class="fa fa-chevron-left"></i> 文件编码之PNG
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/05/04/CMU15445%20Lab1-BufferPoolManager/" rel="next" title="CMU 15445-Lab1:Buffer Pool Manager">
+      CMU 15445-Lab1:Buffer Pool Manager <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%81%E5%B0%8F%E5%8C%96%E6%9E%81%E5%A4%A7%E7%AE%97%E6%B3%95-Minimax"><span class="nav-number">1.</span> <span class="nav-text">极小化极大算法(Minimax)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alpha-beta-%E5%89%AA%E6%9E%9D"><span class="nav-number">2.</span> <span class="nav-text">alpha-beta 剪枝</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">CjiW</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/CjiW" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;CjiW" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:caojingwei213@gmail.com" title="E-Mail → mailto:caojingwei213@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CjiW</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>
