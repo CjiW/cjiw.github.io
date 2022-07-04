@@ -27,13 +27,13 @@
 <meta property="og:site_name" content="Blogoc">
 <meta property="og:description" content="关于CRC原理 A端   选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【1】 将 数据+CRC 以及其他部分存储或发送   B端 获取读取或接受的 数据+CRC【1】 选择指定的CRC参数模型 根据模型参数及实际数据计算CRC值【2】 将CRC【2】与CRC【1】进行比对 若相同，则数据正确；若不同，则数据有损    CRC模型参数   参数 取值 意义    NAME 根据位宽具">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="https://s2.51cto.com/images/blog/202112/25010424_61c5fd988986c10442.jpg">
 <meta property="article:published_time" content="2021-09-14T14:02:55.000Z">
-<meta property="article:modified_time" content="2022-07-04T13:51:56.678Z">
+<meta property="article:modified_time" content="2022-07-04T14:04:04.258Z">
 <meta property="article:author" content="CjiW">
 <meta property="article:tag" content="校验">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png">
+<meta name="twitter:image" content="https://s2.51cto.com/images/blog/202112/25010424_61c5fd988986c10442.jpg">
 
 <link rel="canonical" href="http://example.com/2021/09/14/CRC%E7%9B%B8%E5%85%B3/">
 
@@ -263,7 +263,7 @@
 <td>与计算后CRC进行异或运算</td>
 </tr>
 </tbody></table>
-<p>常见21个模型<br><img src="/./img/CRC%E5%8F%82%E6%95%B0%E6%A8%A1%E5%9E%8B.png" alt="21个标准参数模型">  </p>
+<p>常见21个模型<br><img src="https://s2.51cto.com/images/blog/202112/25010424_61c5fd988986c10442.jpg" alt="21个标准参数模型"></p>
 <p>具体实例：  </p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0.原始数据 = 0x34 = 0011 0100，多项式 = 0x31 = 1 0011 0001</span><br><span class="line">1.INIT = 00，原始数据高8位和初始值进行异或运算保持不变。</span><br><span class="line">2.REFIN为TRUE，需要先对原始数据进行翻转：0011 0100 &gt; 0010 1100</span><br><span class="line">3.原始数据左移8位，即后面补8个0：0010 1100 0000 0000</span><br><span class="line">4.把处理之后的数据和多项式进行模2除法，求得余数：</span><br><span class="line">原始数据：0010 1100 0000 0000 = 10 1100 0000 0000</span><br><span class="line">多项式：1 0011 0001</span><br><span class="line">模2除法取余数低8位：1111 1011</span><br><span class="line">5.与XOROUT进行异或，1111 1011 xor 0000 0000 = 1111 1011 </span><br><span class="line">6.因为REFOUT为TRUE，对结果进行翻转得到最终的CRC-8值：1101 1111 = 0xDF</span><br><span class="line">7.数据+CRC：0011 0100 1101 1111 = 34DF，相当于原始数据左移8位+余数。</span><br></pre></td></tr></table></figure>
 
