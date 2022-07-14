@@ -158,6 +158,82 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/14/%E5%85%B3%E4%BA%8Elimits-h%E4%B8%ADINT-MIN%E7%9A%84%E5%AE%9A%E4%B9%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="CjiW">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blogoc">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/14/%E5%85%B3%E4%BA%8Elimits-h%E4%B8%ADINT-MIN%E7%9A%84%E5%AE%9A%E4%B9%89/" class="post-title-link" itemprop="url">关于limits.h中INT_MIN的定义</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-14 13:02:28" itemprop="dateCreated datePublished" datetime="2022-07-14T13:02:28+08:00">2022-07-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>最近在查看C的标准库代码时，发现了个小细节：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> INT_MAX   2147483647</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INT_MIN   (-INT_MAX - 1)</span></span><br></pre></td></tr></table></figure>
+<p>奇怪之处在于：<code>(-INT_MAX-1)</code> 为何不写作 <code>-2147483648</code> ？</p>
+<h2 id="猜想"><a href="#猜想" class="headerlink" title="猜想"></a>猜想</h2><ul>
+<li>两者其实等效，如此写只是为了将<code>INT_MAX</code>与<code>INT_MIN</code>联系起来，需要改动时只需改变<code>INT_MAX</code></li>
+<li>两者并不完全相等</li>
+</ul>
+<h2 id="代码验证"><a href="#代码验证" class="headerlink" title="代码验证"></a>代码验证</h2><p>首先，要弄清楚两者是否真的完全相等，万能的打印大法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n%d&quot;</span>,<span class="number">-2147483647</span><span class="number">-1</span>,<span class="number">-2147483648</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>得到输出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">main.c: In function ‘main’:</span><br><span class="line">main.c:13:18: warning: format ‘%d’ expects argument of type ‘int’, but argument 3 has type ‘long int’ [-Wformat=]</span><br><span class="line">   13 |     printf(&quot;%d\n%d\n&quot;,-2147483647-1,-2147483648);</span><br><span class="line">      |                 ~^                  ~~~~~~~~~~~</span><br><span class="line">      |                  |                  |</span><br><span class="line">      |                  int                long int</span><br><span class="line">      |                 %ld</span><br><span class="line">-2147483648</span><br><span class="line">-2147483648</span><br></pre></td></tr></table></figure>
+<p>可以看到报错了，报错信息指出 <code>-2147483648</code> 是 <code>long</code> 型</p>
+<h2 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h2><p>我们知道，</p>
+<ul>
+<li>int类型的范围是 <code>-2147483648 ~ 2147483647</code></li>
+<li><code>-</code> 是一个<em>单目运算符</em></li>
+</ul>
+<p>从而 <code>-2147483648</code> 的值就是表达式 <code>-(2147483648)</code> 的值，而<code>2147483648</code>的类型显然是<code>long</code>，从而<code>-2147483648</code>也是<code>long</code>型</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在使用接近数据范围边缘的数值时，一定要仔细考虑 <strong>运算顺序</strong> 是否会造成意料之外的溢出</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/04/CMU15445%20Lab1-BufferPoolManager/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -700,14 +776,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
